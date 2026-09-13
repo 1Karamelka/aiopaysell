@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "paysell"
+dynamic = ["version"]
+description = "Official Python client for the Paysell crypto payments API (TON, USDT on TON): invoices and webhooks, sync and async."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Paysell" }]
+requires-python = ">=3.9"
+dependencies = ["httpx>=0.24,<1"]
+keywords = ["paysell", "payments", "crypto", "ton", "usdt", "invoices", "webhooks", "payment gateway"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Framework :: AsyncIO",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://paysell.me"
+Documentation = "https://paysell.me/docs"
+Source = "https://github.com/paysell/aiopaysell"
+Issues = "https://github.com/paysell/aiopaysell/issues"
+Changelog = "https://github.com/paysell/aiopaysell/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.6", "mypy>=1.10"]
+
+[tool.hatch.version]
+path = "src/paysell/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/paysell", "tests", "README.md", "CHANGELOG.md", "LICENSE"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/paysell"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["UP006", "UP007", "UP035", "UP045", "RUF001", "RUF002", "RUF003", "RUF022"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501", "E731"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src/paysell"]
