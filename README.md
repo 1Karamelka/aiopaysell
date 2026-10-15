@@ -1,10 +1,10 @@
 # Paysell for Python
 
-Python client for the [Paysell](https://paysell.me) API. Accept **TON** and **USDT on TON** with hosted invoices and signed webhooks.
+Python client for the [Paysell](https://paysell.me) API. Supports TON and USDT on TON.
 
 - Sync and async clients, same methods
-- Typed models, one dependency `(httpx)`
-- Webhook verification `(byte-for-byte)`
+- Typed models, one dependency (httpx)
+- Webhook verification 
 - Safe retries, idempotent invoice creation
 
 ```bash
@@ -152,8 +152,8 @@ Rules that matter:
 
 - **Release goods only when `event.data.is_paid`** (status `paid` or `overpaid`). `underpaid` is still open; `payment.rejected` never means paid.
 - **Answer 2xx within 10 seconds**, then do slow work. Anything else is retried for about 31 hours.
-- **Deduplicate on `event.event_id`** (a unique column in your database).
-- `asset_mismatch=True` means the buyer sent a different coin. You are credited, the invoice stays unpaid.
+- **Deduplicate on `event.event_id`**.
+- `asset_mismatch=True` means a different asset was received.
 
 Test your handler without a real payment:
 
@@ -167,7 +167,7 @@ headers = generate_test_headers(body, WEBHOOK_SECRET)
 
 ## Amounts
 
-The REST API speaks **normal units** as strings: `"5"` is 5 USDT, `"1.5"` is 1.5 TON. Webhook amounts are **smallest units** (USDT has 6 decimals, TON 9).
+Amounts in requests are strings: `"5"` is 5 USDT, `"1.5"` is 1.5 TON. Webhook amounts are **smallest units**. Decimals per asset are returned by the API.
 
 ```python
 create_invoice("USDT_TON", "5")  # str, int or Decimal; floats are refused
@@ -209,7 +209,7 @@ except InvalidRequestError as e:
 
 By default the client retries twice: on `429` (after `Retry-After`, if ≤60 s), and on network errors and `5xx` for safe-to-repeat requests: reads and invoice creation, which always carries an `idempotency_key`. `cancel_invoice` is not repeated after a lost answer. Set `max_retries=0` to handle everything yourself.
 
-A lost answer to `create_invoice` does not mean no invoice was created. Pass your own `idempotency_key` stored with the order, so a retry after a crash returns the same invoice.
+Always pass `idempotency_key` stored with the order. Retries return the same invoice.
 
 ## Polling fallback
 
