@@ -5,14 +5,14 @@ build-backend = "hatchling.build"
 [project]
 name = "paysell"
 dynamic = ["version"]
-description = "Official Python client for the Paysell crypto payments API (TON, USDT on TON): invoices and webhooks, sync and async."
+description = "Python client for the Paysell API."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-authors = [{ name = "Paysell" }]
+authors = [{ name = "Paysell", email = "noreply@paysell.me" }]
 requires-python = ">=3.9"
 dependencies = ["httpx>=0.24,<1"]
-keywords = ["paysell", "payments", "crypto", "ton", "usdt", "invoices", "webhooks", "payment gateway"]
+keywords = ["paysell", "payments", "crypto", "ton", "usdt"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://paysell.me"
+Homepage = "https://github.com/SaleProfit/aiopaysell"
 Documentation = "https://paysell.me/docs"
 Source = "https://github.com/SaleProfit/aiopaysell"
 Issues = "https://github.com/SaleProfit/aiopaysell/issues"
