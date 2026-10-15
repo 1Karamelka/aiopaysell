@@ -1,4 +1,4 @@
-"""Official Python client for the Paysell merchant API — TON and USDT on TON."""
+"""Python client for the Paysell API."""
 
 from ._amounts import ASSET_DECIMALS, format_amount, from_minor, to_minor
 from ._client import DEFAULT_BASE_URL, AsyncPaysell, Paysell
