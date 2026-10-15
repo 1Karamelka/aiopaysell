@@ -8,12 +8,7 @@ class PaysellError(Exception):
 
 
 class APIConnectionError(PaysellError):
-    """The request never got an answer: DNS, TCP, TLS or a dropped connection.
-
-    For ``create_invoice`` this does not mean the invoice was not created —
-    the answer may have been lost on the way back. Retry with the same
-    ``idempotency_key``.
-    """
+    """The request never got an answer."""
 
 
 class APITimeoutError(APIConnectionError):
@@ -24,8 +19,8 @@ class APIError(PaysellError):
     """The API answered with a non-2xx status.
 
     :ivar status_code: HTTP status.
-    :ivar code: machine-readable error code, e.g. ``"invalid_input"``. Branch on this.
-    :ivar message: human-readable explanation. Log it, don't parse it.
+    :ivar code: machine-readable error code, e.g. ``"invalid_input"``.
+    :ivar message: human-readable explanation.
     :ivar details: extra detail strings, when the API sent any.
     :ivar errors: field-level validation errors for a malformed request body.
     :ivar body: the decoded response body (or raw text if it was not JSON).
@@ -61,19 +56,19 @@ class AuthenticationError(APIError):
 
 
 class NotFoundError(APIError):
-    """404 — no such invoice, or it belongs to another shop."""
+    """404 — no such invoice."""
 
 
 class ConflictError(APIError):
-    """409 — the invoice is in a state that forbids this, e.g. cancelling a paid one."""
+    """409 — the invoice is in a state that forbids this."""
 
 
 class InvalidRequestError(APIError):
-    """422 — malformed request, or an amount outside the invoice limits."""
+    """422 — malformed request."""
 
 
 class RateLimitError(APIError):
-    """429 — too many requests, invoices this hour, or open invoices.
+    """429 — too many requests.
 
     :ivar retry_after: seconds to wait, from the ``Retry-After`` header.
     """
@@ -84,16 +79,11 @@ class RateLimitError(APIError):
 
 
 class ServiceUnavailableError(APIError):
-    """5xx — the processing core could not be reached or failed.
-
-    For ``create_invoice`` the invoice may still have been created. Retry
-    with the same ``idempotency_key``.
-    """
+    """5xx — the API is temporarily unavailable."""
 
 
 class WebhookVerificationError(PaysellError):
-    """A webhook failed verification: bad or missing signature, stale timestamp,
-    or a body that is not a Paysell event. Answer such a request with 4xx."""
+    """A webhook failed verification."""
 
 
 _STATUS_TO_ERROR: dict[int, type[APIError]] = {
