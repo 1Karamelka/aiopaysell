@@ -34,9 +34,9 @@ classifiers = [
 [project.urls]
 Homepage = "https://paysell.me"
 Documentation = "https://paysell.me/docs"
-Source = "https://github.com/paysell/aiopaysell"
-Issues = "https://github.com/paysell/aiopaysell/issues"
-Changelog = "https://github.com/paysell/aiopaysell/blob/main/CHANGELOG.md"
+Source = "https://github.com/SaleProfit/aiopaysell"
+Issues = "https://github.com/SaleProfit/aiopaysell/issues"
+Changelog = "https://github.com/SaleProfit/aiopaysell/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.6", "mypy>=1.10"]
