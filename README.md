@@ -1,11 +1,11 @@
 # Paysell for Python
 
-Official Python client for the [Paysell](https://paysell.me) merchant API — accept **TON** and **USDT on TON** with hosted invoices and signed webhooks.
+Python client for the [Paysell](https://paysell.me) API. Accept **TON** and **USDT on TON** with hosted invoices and signed webhooks.
 
-- Sync (`Paysell`) and async (`AsyncPaysell`) clients with the same methods
-- Typed models, `py.typed`, one dependency (`httpx`)
-- Webhook verification that matches the server byte for byte
-- Safe retries: rate limits wait out `Retry-After`; invoice creation is idempotent
+- Sync and async clients, same methods
+- Typed models, one dependency `(httpx)`
+- Webhook verification `(byte-for-byte)`
+- Safe retries, idempotent invoice creation
 
 ```bash
 pip install paysell
@@ -25,10 +25,10 @@ invoice = paysell.create_invoice(
     "5",  # normal units: 5 USDT
     order_id="order-1042",  # comes back in every webhook
     description="Pro subscription",
-    idempotency_key="order-1042",  # store it with the order; retries return the same invoice
+    idempotency_key="order-1042",  # store with the order; retries return the same invoice
 )
 
-redirect(invoice.payment_url)  # amount, address, QR and live status are on that page
+redirect(invoice.payment_url)  # amount, address, QR and live status on that page
 ```
 
 Async:
@@ -40,19 +40,19 @@ async with AsyncPaysell("sk_live_...") as paysell:
     invoice = await paysell.create_invoice("TON", "1.5", order_id="order-1042")
 ```
 
-Reuse one client for the lifetime of your app — it keeps a connection pool. Close it with `close()` or use it as a context manager.
+Reuse one client for your app's lifetime. Close it with `close()` or use it as a context manager.
 
 ### Other calls
 
 ```python
 invoice = paysell.get_invoice(invoice_id)  # current state
-invoice = paysell.cancel_invoice(invoice_id)  # abandoned checkout: release the address
-public = paysell.get_public_invoice(invoice_id)  # buyer-facing view, no API key needed
+invoice = paysell.cancel_invoice(invoice_id)  # release the address
+public = paysell.get_public_invoice(invoice_id)  # public view, no API key
 ```
 
 ## Receive webhooks
 
-Paysell sends `payment.credited` and `payment.rejected` to the webhook URL of your API key. Each delivery is signed with the key's **webhook secret** — shown once, next to the key, when you create it. It is not the API key.
+Paysell sends `payment.credited` and `payment.rejected` to the webhook URL of your API key. Each delivery is signed with the key's **webhook secret**, shown once next to the key. It is not the API key.
 
 ```python
 from paysell import PaymentCredited, WebhookVerificationError, construct_event
@@ -76,7 +76,7 @@ def handle(raw_body: bytes, headers) -> int:
     return 200
 ```
 
-`construct_event` checks the HMAC over the **raw** body and rejects timestamps more than five minutes from your clock. Pass the bytes exactly as received — not re-serialized JSON.
+`construct_event` checks the HMAC over the **raw** body and rejects timestamps more than five minutes from your clock. Pass the bytes exactly as received, not re-serialized JSON.
 
 <details>
 <summary>FastAPI</summary>
@@ -152,8 +152,8 @@ Rules that matter:
 
 - **Release goods only when `event.data.is_paid`** (status `paid` or `overpaid`). `underpaid` is still open; `payment.rejected` never means paid.
 - **Answer 2xx within 10 seconds**, then do slow work. Anything else is retried for about 31 hours.
-- **Deduplicate on `event.event_id`** — a unique column in your database.
-- `asset_mismatch=True` means the buyer sent a different coin: you are credited, the invoice stays unpaid.
+- **Deduplicate on `event.event_id`** (a unique column in your database).
+- `asset_mismatch=True` means the buyer sent a different coin. You are credited, the invoice stays unpaid.
 
 Test your handler without a real payment:
 
@@ -180,7 +180,7 @@ to_minor("1.5", "TON")  # 1500000000
 from_minor("4905000", "USDT_TON")  # Decimal("4.905")
 ```
 
-Limits: 0.1–7000 TON, 3–10000 USDT per invoice.
+Limits are 0.1 to 7000 TON, 3 to 10000 USDT per invoice.
 
 ## Errors
 
@@ -188,7 +188,7 @@ Limits: 0.1–7000 TON, 3–10000 USDT per invoice.
 |---|---|---|
 | `AuthenticationError` | 401 | Key missing, wrong or revoked |
 | `NotFoundError` | 404 | No such invoice, or another shop's |
-| `ConflictError` | 409 | E.g. cancelling an invoice that is no longer open |
+| `ConflictError` | 409 | For example, cancelling an invoice that is no longer open |
 | `InvalidRequestError` | 422 | Bad input or amount outside limits |
 | `RateLimitError` | 429 | `retry_after` says how long to wait |
 | `ServiceUnavailableError` | 5xx | Processing unavailable; retry with the same `idempotency_key` |
@@ -202,12 +202,12 @@ from paysell import InvalidRequestError, RateLimitError
 try:
     invoice = paysell.create_invoice("USDT_TON", "1", idempotency_key=order.key)
 except InvalidRequestError as e:
-    print(e.code, e.message)  # invalid_input invoice amount below the minimum ...
+    print(e.code, e.message)  # invalid_input invoice amount below the minimum
 ```
 
 ### Retries
 
-By default the client retries twice: on `429` (after `Retry-After`, if it is at most 60 s), and on network errors and `5xx` for requests that are safe to repeat — reads, and invoice creation, which always carries an `idempotency_key`. `cancel_invoice` is not repeated after a lost answer. Set `max_retries=0` to handle everything yourself.
+By default the client retries twice: on `429` (after `Retry-After`, if ≤60 s), and on network errors and `5xx` for safe-to-repeat requests: reads and invoice creation, which always carries an `idempotency_key`. `cancel_invoice` is not repeated after a lost answer. Set `max_retries=0` to handle everything yourself.
 
 A lost answer to `create_invoice` does not mean no invoice was created. Pass your own `idempotency_key` stored with the order, so a retry after a crash returns the same invoice.
 
